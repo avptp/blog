@@ -1,0 +1,65 @@
+image:
+  name: avptp/blog
+  tag: nil
+
+registry:
+  name: nil
+  credentials: nil
+
+deployment:
+  replicas: 1
+  revisionHistoryLimit: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 200Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
+
+config:
+  database__client: mysql
+  database__connection__host: mariadb.persistence.svc.cluster.local
+  database__connection__port: '3306'
+  database__connection__user: avptp_blog
+  database__connection__database: avptp_blog
+
+  logging__level: error
+
+  mail__transport: SMTP
+  mail__options__host: email-smtp.eu-west-1.amazonaws.com
+  mail__options__port: '465'
+  mail__options__service: SES
+  mail__options__auth__user: AKIAJLQOB2HCWBW4NZVA
+
+  storage__active: s3
+  storage__s3__accessKeyId: CRYUARZCPASQROJTCSRO
+  storage__s3__bucket: avptp-blog
+  storage__s3__assetHost: https://avptp-blog.ams3.cdn.digitaloceanspaces.com
+  storage__s3__endpoint: ams3.digitaloceanspaces.com
+
+secrets: {}
+#  database__connection__password: nil
+#  mail__options__auth__pass: nil
+#  storage__s3__secretAccessKey: nil
+
+persistence:
+  size: 1Gi
+
+service:
+  port: 80
+
+ingress:
+  host: blog.avptp.org
+  annotations:
+    ingress.kubernetes.io/hsts-max-age: '31536000'
+    ingress.kubernetes.io/hsts-include-subdomains: 'true'
+    ingress.kubernetes.io/hsts-preload: 'true'
+    ingress.kubernetes.io/force-hsts: "true"
+    #ingress.kubernetes.io/content-security-policy: "default-src 'self' 'unsafe-inline' https:"
+    ingress.kubernetes.io/browser-xss-filter: 'true'
+    ingress.kubernetes.io/content-type-nosniff: 'true'
+    ingress.kubernetes.io/referrer-policy: strict-origin-when-cross-origin
+    ingress.kubernetes.io/custom-response-headers: x-frame-options:sameorigin
+    prometheus.io/probe: 'true'
+    prometheus.io/probe-path: /ghost/

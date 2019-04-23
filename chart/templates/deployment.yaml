@@ -1,0 +1,56 @@
+kind: Deployment
+apiVersion: apps/v1
+
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Release.Name }}
+
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
+
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        mariadb-client: 'true'
+
+    spec:
+      containers:
+        - name: app
+          image: {{ template "image" . }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}
+            - secretRef:
+                name: {{ .Release.Name }}
+          ports:
+            - name: http
+              containerPort: 2368
+          resources: {{ toYaml .Values.deployment.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: {{ .Values.ingress.host }}
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 1000
+
+      imagePullSecrets:
+        - name: {{ .Release.Name }}-registry

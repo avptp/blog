@@ -1,0 +1,13 @@
+.dockerignore
+.drone.yml
+.DS_Store
+.editorconfig
+.env
+.env.example
+.git
+.gitignore
+.idea
+docker-compose.yml
+Dockerfile
+license.md
+readme.md

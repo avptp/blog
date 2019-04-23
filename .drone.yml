@@ -1,0 +1,66 @@
+name: blog
+kind: pipeline
+
+trigger:
+  branch:
+    - master
+  event:
+    - push
+
+steps:
+  - name: build
+    image: docker:18.09.5
+    environment:
+      DOCKER_HOST: tcp://docker.avptp.org:2376
+      DOCKER_CA:
+        from_secret: docker-ca
+      DOCKER_CERT:
+        from_secret: docker-cert
+      DOCKER_KEY:
+        from_secret: docker-key
+      DOCKER_TLS_VERIFY: '1'
+      REGISTRY_HOST: registry.avptp.org
+      REGISTRY_CONFIG:
+        from_secret: registry
+    commands:
+      - >-
+        mkdir -p ~/.docker &&
+        echo "$DOCKER_CA" > ~/.docker/ca.pem &&
+        echo "$DOCKER_CERT" > ~/.docker/cert.pem &&
+        echo "$DOCKER_KEY" > ~/.docker/key.pem &&
+        echo "$REGISTRY_CONFIG" > ~/.docker/config.json
+      - >-
+        echo -n ${DRONE_COMMIT:0:8} > .tag &&
+        IMAGE="$REGISTRY_HOST/$DRONE_REPO_NAMESPACE/$DRONE_REPO_NAME:$(cat .tag)"
+      - docker build -t $IMAGE .
+      - docker push $IMAGE
+
+  - name: pre-deploy
+    image: lachlanevenson/k8s-helm:v2.13.1
+    environment:
+      REGISTRY_HOST: registry.avptp.org
+      REGISTRY_CONFIG:
+        from_secret: registry
+    commands:
+      - >-
+        helm template chart
+        --name $DRONE_REPO_NAME
+        --namespace $DRONE_REPO_NAMESPACE
+        --set-string image.tag=$(cat .tag)
+        --set-string registry.name=$REGISTRY_HOST
+        --set-string registry.credentials="'$REGISTRY_CONFIG'"
+        > spec.yaml
+
+  - name: deploy
+    image: lachlanevenson/k8s-kubectl:v1.14.1
+    environment:
+      KUBERNETES_CONFIG:
+        from_secret: kubernetes
+    commands:
+      - >-
+        mkdir -p ~/.kube &&
+        echo "$KUBERNETES_CONFIG" > ~/.kube/config
+      - >-
+        echo -n $([[ $DRONE_BRANCH = 'master' ]] && echo 'production' || echo 'staging') > .environment
+      - kubectl config use-context $(cat .environment)
+      - kubectl apply -f spec.yaml
