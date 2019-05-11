@@ -26,7 +26,7 @@ The project follows the structure below:
 
 ### License
 
-This software is distributed under the MIT license. Please read [the license](license.md) for more information on the availability and distribution.
+This software is distributed under the MIT license. Please read [the software license](license.md) and [the resources license](resources/license.md) for more information on the availability and distribution.
 
 ## First steps
 
