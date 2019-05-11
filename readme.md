@@ -2,7 +2,7 @@
 
 # Blog
 
-[![Build status](https://drone.dev.avptp.org/api/badges/avptp/blog/status.svg)](https://drone.dev.avptp.org/avptp/blog)
+![Build status](https://drone.dev.avptp.org/api/badges/avptp/blog/status.svg)
 
 ## About
 
