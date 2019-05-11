@@ -11,19 +11,18 @@ spec:
   replicas: {{ .Values.deployment.replicas }}
   revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
 
-  selector:
-    matchLabels:
-      app: {{ .Release.Name }}
-
   strategy:
     rollingUpdate:
       maxUnavailable: 1
+
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
 
   template:
     metadata:
       labels:
         app: {{ .Release.Name }}
-        mariadb-client: 'true'
 
     spec:
       containers:
