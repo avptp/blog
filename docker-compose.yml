@@ -1,4 +1,4 @@
-version: "3.7"
+version: '3.7'
 
 services:
 
@@ -6,4 +6,4 @@ services:
     build:
       context: .
     ports:
-      - "${WEB_PORT:-80}:2368"
+      - ${WEB_PORT:-80}:2368
