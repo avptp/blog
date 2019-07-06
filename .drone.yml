@@ -9,7 +9,7 @@ trigger:
 
 steps:
   - name: build
-    image: docker:18.09.6
+    image: docker:18.09.7
     environment:
       DOCKER_HOST: tcp://docker.avptp.org:2376
       DOCKER_CA:
