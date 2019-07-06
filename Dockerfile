@@ -1,4 +1,4 @@
-FROM ghost:2.22.0-alpine
+FROM ghost:2.25.4-alpine
 
 RUN npm install -g --unsafe-perm \
         ghost-storage-adapter-s3 \

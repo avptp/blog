@@ -9,7 +9,7 @@ trigger:
 
 steps:
   - name: build
-    image: docker:18.09.5
+    image: docker:18.09.7
     environment:
       DOCKER_HOST: tcp://docker.avptp.org:2376
       DOCKER_CA:
@@ -36,7 +36,7 @@ steps:
       - docker push $IMAGE
 
   - name: pre-deploy
-    image: lachlanevenson/k8s-helm:v2.13.1
+    image: lachlanevenson/k8s-helm:v2.14.1
     environment:
       REGISTRY_HOST: registry.avptp.org
       REGISTRY_CONFIG:
@@ -52,7 +52,7 @@ steps:
         > spec.yaml
 
   - name: deploy
-    image: lachlanevenson/k8s-kubectl:v1.14.1
+    image: lachlanevenson/k8s-kubectl:v1.15.0
     environment:
       KUBERNETES_CONFIG:
         from_secret: kubernetes
