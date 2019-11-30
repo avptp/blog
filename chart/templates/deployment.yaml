@@ -37,13 +37,22 @@ spec:
             - name: http
               containerPort: 2368
           resources: {{ toYaml .Values.deployment.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: {{ index .Values.ingress.hosts 0 }}
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
           livenessProbe:
             httpGet:
               path: /
               port: http
               httpHeaders:
                 - name: Host
-                  value: {{ .Values.ingress.host }}
+                  value: {{ index .Values.ingress.hosts 0 }}
             initialDelaySeconds: 10
             timeoutSeconds: 2
 
