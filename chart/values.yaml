@@ -19,7 +19,7 @@ deployment:
 
 config:
   database__client: mysql
-  database__connection__host: mariadb.persistence.svc.cluster.local
+  database__connection__host: private.emerald.rdb.prd.axiomer.net
   database__connection__port: '3306'
   database__connection__user: avptp_blog
   database__connection__database: avptp_blog
@@ -46,21 +46,13 @@ secrets: {}
 persistence:
   size: 1Gi
 
-service:
-  port: 80
-
 ingress:
   hosts:
     - blog.avptp.org
-  annotations:
-    ingress.kubernetes.io/hsts-max-age: '31536000'
-    ingress.kubernetes.io/hsts-include-subdomains: 'true'
-    ingress.kubernetes.io/hsts-preload: 'true'
-    ingress.kubernetes.io/force-hsts: "true"
-    #ingress.kubernetes.io/content-security-policy: "default-src 'self' 'unsafe-inline' https:"
-    ingress.kubernetes.io/browser-xss-filter: 'true'
-    ingress.kubernetes.io/content-type-nosniff: 'true'
-    ingress.kubernetes.io/referrer-policy: strict-origin-when-cross-origin
-    ingress.kubernetes.io/custom-response-headers: x-frame-options:sameorigin
-    prometheus.io/probe: 'true'
-    prometheus.io/probe-path: /ghost/
+  middlewares:
+    - setBasicFrontHeaders@file
+
+tls:
+  dnsNames:
+    - '*.avptp.org'
+    - avptp.org

@@ -1,0 +1,20 @@
+kind: Certificate
+apiVersion: cert-manager.io/v1alpha2
+
+metadata:
+  name: default
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+
+spec:
+  dnsNames: {{ toYaml .Values.tls.dnsNames | nindent 4 }}
+
+  keyAlgorithm: ecdsa
+  keySize: 256
+
+  secretName: certificate
+
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt

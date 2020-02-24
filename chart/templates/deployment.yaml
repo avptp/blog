@@ -5,10 +5,11 @@ metadata:
   name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Release.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    kubernetes.io/change-cause: '{{ .Values.image.tag }}'
 
 spec:
-  replicas: {{ .Values.deployment.replicas }}
   revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
 
   strategy:
@@ -17,16 +18,16 @@ spec:
 
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
 
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
 
     spec:
       containers:
-        - name: app
+        - name: default
           image: {{ template "image" . }}
           envFrom:
             - configMapRef:
@@ -34,31 +35,29 @@ spec:
             - secretRef:
                 name: {{ .Release.Name }}
           ports:
-            - name: http
+            - name: h1
               containerPort: 2368
           resources: {{ toYaml .Values.deployment.resources | nindent 12 }}
           readinessProbe:
             httpGet:
               path: /
-              port: http
+              port: h1
               httpHeaders:
                 - name: Host
                   value: {{ index .Values.ingress.hosts 0 }}
             initialDelaySeconds: 10
-            timeoutSeconds: 2
           livenessProbe:
             httpGet:
               path: /
-              port: http
+              port: h1
               httpHeaders:
                 - name: Host
                   value: {{ index .Values.ingress.hosts 0 }}
             initialDelaySeconds: 10
-            timeoutSeconds: 2
 
       securityContext:
         runAsUser: 1000
         fsGroup: 1000
 
       imagePullSecrets:
-        - name: {{ .Release.Name }}-registry
+        - name: registry

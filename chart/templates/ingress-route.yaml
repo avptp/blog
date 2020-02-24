@@ -1,0 +1,26 @@
+kind: IngressRoute
+apiVersion: traefik.containo.us/v1alpha1
+
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+
+spec:
+  entryPoints:
+    - h2
+
+  routes:
+    - match: Host(`{{ join "`) || Host(`" .Values.ingress.hosts }}`)
+      kind: Rule
+      services:
+        - name: {{ .Release.Name }}
+          port: 80
+      middlewares:
+        {{- range .Values.ingress.middlewares }}
+        - name: {{ . }}
+        {{- end }}
+
+  tls:
+    secretName: certificate

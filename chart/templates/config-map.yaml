@@ -5,7 +5,7 @@ metadata:
   name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Release.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
 
 data: {{ toYaml .Values.config | nindent 2 }}
   url: https://{{ index .Values.ingress.hosts 0 }}
